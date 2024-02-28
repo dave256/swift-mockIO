@@ -16,7 +16,7 @@ final class InputTests: XCTestCase {
 
     func testGetMultipleInts() throws {
         var io = Input("""
-        10 11 12
+        10   11 12
         13 14
         15 16
         """)

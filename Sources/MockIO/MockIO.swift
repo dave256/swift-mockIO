@@ -20,6 +20,10 @@ public struct Input {
     /// - Returns: Int from the input string
     public mutating func getInt() throws -> Int {
         guard !s.isEmpty else { throw InputError.empty }
+        // skip whitespace
+        let whiteSpace = s.prefix(while: { $0.isWhitespace })
+        s = s.dropFirst(whiteSpace.count)
+        // assume until next whitespace is the number
         let prefix = s.prefix(while: { !$0.isWhitespace })
         s = s.dropFirst(prefix.count + 1)
         if let x = Int(prefix) {
@@ -35,6 +39,10 @@ public struct Input {
     /// - Returns: Double from the input string
     public mutating func getDouble() throws -> Double {
         guard !s.isEmpty else { throw InputError.empty }
+        // skip whitespace
+        let whiteSpace = s.prefix(while: { $0.isWhitespace })
+        s = s.dropFirst(whiteSpace.count)
+        // assume until next whitespace is the number
         let prefix = s.prefix(while: { !$0.isWhitespace })
         s = s.dropFirst(prefix.count + 1)
         if let x = Double(prefix) {
