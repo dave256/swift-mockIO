@@ -1,3 +1,5 @@
+import Foundation
+
 public enum InputError: Error {
     case empty
     case notInt(String)
@@ -66,7 +68,11 @@ public struct Input {
         s = s.dropFirst(prefix.count + 1)
         return String(prefix)
     }
-
+    
+    /// tries to get an array of Int as the next item from the input
+    /// - Throws : InputError.empty if out of input, or InputError.notInt if data is not all Int
+    /// - Parameter until: process all characters until this character; pass `nil` to process rest of input
+    /// - Returns: array of Int from the input
     public mutating func getArrayOfInt(until: Character? = "\n") throws -> [Int] {
         let strings = try skippingWhitespaceSplittingOnWhitespace(until: until)
         var values: [Int] = []
@@ -80,6 +86,10 @@ public struct Input {
         return values
     }
 
+    /// tries to get an array of Double as the next item from the input
+    /// - Throws : InputError.empty if out of input, or InputError.notDouble if data is not all Double
+    /// - Parameter until: process all characters until this character; pass nil to process rest of input
+    /// - Returns: array of Double from the input
     public mutating func getArrayOfDouble(until: Character? = "\n") throws -> [Double] {
         let strings = try skippingWhitespaceSplittingOnWhitespace(until: until)
         var values: [Double] = []
@@ -92,21 +102,23 @@ public struct Input {
         }
         return values
     }
-
+    
+    /// helper function to skip past any whitespace and then get the to the `until` character (pass `nil` to go to end of input) and then splits the input on any whitespace character
+    /// - Parameter until: process and remove input to this character (pass `nil` to process all remaining input
+    /// - Returns: an array of Substring splitting the processed input on any whitespace characters
     private mutating func skippingWhitespaceSplittingOnWhitespace(until: Character? = "\n") throws -> [Substring] {
         // skip whitespace
         let whiteSpace = s.prefix(while: { $0.isWhitespace })
         s = s.dropFirst(whiteSpace.count)
-        var prefix: Substring
+        let prefix: Substring
         guard !s.isEmpty else { throw InputError.empty }
         if let until {
             prefix = s.prefix(while: { $0 != until })
         } else {
             prefix = s
         }
-        prefix = prefix.replacing("\n", with: " ").replacing("\t", with: " ")
         s = s.dropFirst(prefix.count + 1)
-        return prefix.split(separator: " ")
+        return prefix.split(whereSeparator: { $0.isWhitespace } )
     }
 }
 
