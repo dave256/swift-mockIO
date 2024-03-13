@@ -100,6 +100,18 @@ final class InputTests: XCTestCase {
         XCTAssertEqual(line2, [4, 30, 2])
     }
 
+    func testArrayOfIntMultipleLinesThrows() throws {
+        var io = Input(" 10  15  2 a 42 8\n4 30 2 ")
+        do {
+            let _ = try io.getArrayOfInt()
+            XCTFail("test should have thrown")
+        } catch InputError.notInt(_) {
+
+        } catch {
+            XCTFail("different error thrown then expected")
+        }
+    }
+
     func testArrayOfIntMultipleLinesAsOneArray() throws {
         var io = Input(" 10  15  2 42 8\n4 30 2 ")
         let line1 = try io.getArrayOfInt(until: nil)
