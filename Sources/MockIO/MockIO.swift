@@ -19,10 +19,10 @@ public struct Input {
     /// - Throws: InputError.empty if out of input or InputError.notInt if couldn't find an Int up to the next space
     /// - Returns: Int from the input string
     public mutating func getInt() throws -> Int {
-        guard !s.isEmpty else { throw InputError.empty }
         // skip whitespace
         let whiteSpace = s.prefix(while: { $0.isWhitespace })
         s = s.dropFirst(whiteSpace.count)
+        guard !s.isEmpty else { throw InputError.empty }
         // assume until next whitespace is the number
         let prefix = s.prefix(while: { !$0.isWhitespace })
         s = s.dropFirst(prefix.count + 1)
@@ -38,10 +38,10 @@ public struct Input {
     /// - Throws: InputError.empty if out of input or InputError.notDouble if couldn't find a Double up to the next space
     /// - Returns: Double from the input string
     public mutating func getDouble() throws -> Double {
-        guard !s.isEmpty else { throw InputError.empty }
         // skip whitespace
         let whiteSpace = s.prefix(while: { $0.isWhitespace })
         s = s.dropFirst(whiteSpace.count)
+        guard !s.isEmpty else { throw InputError.empty }
         // assume until next whitespace is the number
         let prefix = s.prefix(while: { !$0.isWhitespace })
         s = s.dropFirst(prefix.count + 1)
@@ -54,13 +54,59 @@ public struct Input {
 
     /// try to get a String as the next item from the input
     /// if input string is not empty, the portion it returns is removed from the input string before returning
-    /// - Throws: InputError.empty if out of input or InputError.notDouble if couldn't find an Int up to the next space
+    /// - Throws: InputError.empty if out of input
     /// - Returns: String from the input string
-    public mutating func getString(until: Character="\n") throws -> String {
+    public mutating func getString(until: Character? = "\n") throws -> String {
         guard !s.isEmpty else { throw InputError.empty }
+        guard let until else {
+            defer { s = "" }
+            return String(s)
+        }
         let prefix = s.prefix(while: { $0 != until })
         s = s.dropFirst(prefix.count + 1)
         return String(prefix)
+    }
+
+    public mutating func getArrayOfInt(until: Character? = "\n") throws -> [Int] {
+        let strings = try skippingWhitespaceSplittingOnWhitespace(until: until)
+        var values: [Int] = []
+        for s in strings {
+            if let x = Int(s) {
+                values.append(x)
+            } else {
+                throw InputError.notInt(String(s))
+            }
+        }
+        return values
+    }
+
+    public mutating func getArrayOfDouble(until: Character? = "\n") throws -> [Double] {
+        let strings = try skippingWhitespaceSplittingOnWhitespace(until: until)
+        var values: [Double] = []
+        for s in strings {
+            if let x = Double(s) {
+                values.append(x)
+            } else {
+                throw InputError.notDouble(String(s))
+            }
+        }
+        return values
+    }
+
+    private mutating func skippingWhitespaceSplittingOnWhitespace(until: Character? = "\n") throws -> [Substring] {
+        // skip whitespace
+        let whiteSpace = s.prefix(while: { $0.isWhitespace })
+        s = s.dropFirst(whiteSpace.count)
+        var prefix: Substring
+        guard !s.isEmpty else { throw InputError.empty }
+        if let until {
+            prefix = s.prefix(while: { $0 != until })
+        } else {
+            prefix = s
+        }
+        prefix = prefix.replacing("\n", with: " ").replacing("\t", with: " ")
+        s = s.dropFirst(prefix.count + 1)
+        return prefix.split(separator: " ")
     }
 }
 

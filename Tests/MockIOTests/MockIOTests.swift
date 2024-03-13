@@ -3,9 +3,33 @@ import XCTest
 
 final class InputTests: XCTestCase {
     func testGetInt() throws {
-        var io = Input("23")
+        var io = Input(" 23")
         let x = try io.getInt()
         XCTAssertEqual(x, 23)
+    }
+
+    func testGetIntThrowsEmpty() throws {
+        var io = Input("   ")
+        do {
+            let _ = try io.getInt()
+            XCTFail("test should have thrown")
+        } catch InputError.empty {
+
+        } catch {
+            XCTFail("test should have thrown empty error, but threw a different error")
+        }
+    }
+
+    func testGetIntThrowsNotInt() throws {
+        var io = Input(" abc  ")
+        do {
+            let _ = try io.getInt()
+            XCTFail("test should have thrown")
+        } catch InputError.notInt(_) {
+
+        } catch {
+            XCTFail("test should have thrown empty error, but threw a different error")
+        }
     }
 
     func testGetDouble() throws {
@@ -60,6 +84,46 @@ final class InputTests: XCTestCase {
         XCTAssertEqual(s2, "hello")
         let s3 = try io.getString(until: " ")
         XCTAssertEqual(s3, "world")
+    }
+
+    func testArrayOfInt() throws {
+        var io = Input(" 10  15  2 42 8")
+        let values = try io.getArrayOfInt()
+        XCTAssertEqual(values, [10, 15, 2, 42, 8])
+    }
+
+    func testArrayOfIntMultipleLines() throws {
+        var io = Input(" 10  15  2 42 8\n4 30 2 ")
+        let line1 = try io.getArrayOfInt()
+        XCTAssertEqual(line1, [10, 15, 2, 42, 8])
+        let line2 = try io.getArrayOfInt()
+        XCTAssertEqual(line2, [4, 30, 2])
+    }
+
+    func testArrayOfIntMultipleLinesAsOneArray() throws {
+        var io = Input(" 10  15  2 42 8\n4 30 2 ")
+        let line1 = try io.getArrayOfInt(until: nil)
+        XCTAssertEqual(line1, [10, 15, 2, 42, 8, 4, 30, 2])
+    }
+
+    func testArrayOfDoubleAsInt() throws {
+        var io = Input(" 10  15  2 42 8")
+        let values = try io.getArrayOfDouble()
+        XCTAssertEqual(values, [10.0, 15.0, 2.0, 42.0, 8.0])
+    }
+
+    func testArrayOfDouble() throws {
+        var io = Input(" 10.5  15.25  2.0 42.125 8")
+        let values = try io.getArrayOfDouble()
+        XCTAssertEqual(values, [10.5, 15.25, 2.0, 42.125, 8.0])
+    }
+
+    func testArrayOfDoubleMultipleLines() throws {
+        var io = Input(" 10.5  15.25  2.0 42.125 8\n4.5")
+        let line1 = try io.getArrayOfDouble()
+        XCTAssertEqual(line1, [10.5, 15.25, 2.0, 42.125, 8.0])
+        let line2 = try io.getArrayOfDouble()
+        XCTAssertEqual(line2, [4.5])
     }
 }
 
